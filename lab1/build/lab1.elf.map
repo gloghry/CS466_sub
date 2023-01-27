@@ -53,7 +53,9 @@ Discarded input sections
  .text          0x0000000000000000        0x0 CMakeFiles/lab1.dir/lab1.c.obj
  .data          0x0000000000000000        0x0 CMakeFiles/lab1.dir/lab1.c.obj
  .bss           0x0000000000000000        0x0 CMakeFiles/lab1.dir/lab1.c.obj
- .text.my_gpio_init
+ .text.led_control
+                0x0000000000000000       0x20 CMakeFiles/lab1.dir/lab1.c.obj
+ .text.isPressed
                 0x0000000000000000       0x14 CMakeFiles/lab1.dir/lab1.c.obj
  .text          0x0000000000000000        0x0 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_stdlib/stdlib.c.obj
  .data          0x0000000000000000        0x0 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_stdlib/stdlib.c.obj
@@ -80,8 +82,6 @@ Discarded input sections
                 0x0000000000000000       0x30 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_gpio/gpio.c.obj
  .text.gpio_get_function
                 0x0000000000000000       0x14 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_gpio/gpio.c.obj
- .text.gpio_set_pulls
-                0x0000000000000000       0x30 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_gpio/gpio.c.obj
  .text.gpio_set_irqover
                 0x0000000000000000       0x24 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_gpio/gpio.c.obj
  .text.gpio_set_inover
@@ -1035,9 +1035,9 @@ Discarded input sections
  .comment       0x0000000000000000       0x4a CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.c.obj
  .ARM.attributes
                 0x0000000000000000       0x2c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.c.obj
- .text          0x0000000000000000        0x0 /tmp/cccIPaMy.o
- .data          0x0000000000000000        0x0 /tmp/cccIPaMy.o
- .bss           0x0000000000000000        0x0 /tmp/cccIPaMy.o
+ .text          0x0000000000000000        0x0 /tmp/ccm8JkWa.o
+ .data          0x0000000000000000        0x0 /tmp/ccm8JkWa.o
+ .bss           0x0000000000000000        0x0 /tmp/ccm8JkWa.o
  .data          0x0000000000000000        0x0 /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v6-m/nofp/libgcc.a(_dvmd_tls.o)
  .bss           0x0000000000000000        0x0 /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v6-m/nofp/libgcc.a(_dvmd_tls.o)
  .text          0x0000000000000000        0x0 /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v6-m/nofp/libc.a(lib_a-calloc.o)
@@ -1253,11 +1253,11 @@ LOAD /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/..
 .boot2          0x0000000010000000      0x100
                 0x0000000010000000                __boot2_start__ = .
  *(.boot2)
- .boot2         0x0000000010000000      0x100 /tmp/cccIPaMy.o
+ .boot2         0x0000000010000000      0x100 /tmp/ccm8JkWa.o
                 0x0000000010000100                __boot2_end__ = .
                 0x0000000000000001                ASSERT (((__boot2_end__ - __boot2_start__) == 0x100), ERROR: Pico second stage bootloader must be 256 bytes in size)
 
-.text           0x0000000010000100     0x1ce8
+.text           0x0000000010000100     0x1e58
                 0x0000000010000100                __logical_binary_start = .
  *(.vectors)
  .vectors       0x0000000010000100       0xd4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/crt0.S.obj
@@ -1319,192 +1319,197 @@ LOAD /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/..
                 0x00000000100002c0                _init
  *(EXCLUDE_FILE(*libm.a: *libc.a:*lib_a-mem*.o *libgcc.a:) .text*)
  .text          0x00000000100002c4       0x48 /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v6-m/nofp/crtbegin.o
+ .text.my_gpio_init
+                0x000000001000030c       0x4c CMakeFiles/lab1.dir/lab1.c.obj
+                0x000000001000030c                my_gpio_init
  .text.startup.main
-                0x000000001000030c       0x28 CMakeFiles/lab1.dir/lab1.c.obj
-                0x000000001000030c                main
+                0x0000000010000358      0x120 CMakeFiles/lab1.dir/lab1.c.obj
+                0x0000000010000358                main
+ .text.gpio_set_pulls
+                0x0000000010000478       0x30 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_gpio/gpio.c.obj
+                0x0000000010000478                gpio_set_pulls
  .text.gpio_init
-                0x0000000010000334       0x3c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_gpio/gpio.c.obj
-                0x0000000010000334                gpio_init
+                0x00000000100004a8       0x3c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_gpio/gpio.c.obj
+                0x00000000100004a8                gpio_init
  .text.hw_claim_or_assert
-                0x0000000010000370       0x44 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_claim/claim.c.obj
-                0x0000000010000370                hw_claim_or_assert
+                0x00000000100004e4       0x44 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_claim/claim.c.obj
+                0x00000000100004e4                hw_claim_or_assert
  .text.running_on_fpga
-                0x00000000100003b4       0x10 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_platform/platform.c.obj
-                0x00000000100003b4                running_on_fpga
+                0x0000000010000528       0x10 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_platform/platform.c.obj
+                0x0000000010000528                running_on_fpga
  .text.spin_locks_reset
-                0x00000000100003c4       0x1c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_sync/sync.c.obj
-                0x00000000100003c4                spin_locks_reset
+                0x0000000010000538       0x1c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_sync/sync.c.obj
+                0x0000000010000538                spin_locks_reset
  .text.next_striped_spin_lock_num
-                0x00000000100003e0       0x18 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_sync/sync.c.obj
-                0x00000000100003e0                next_striped_spin_lock_num
+                0x0000000010000554       0x18 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_sync/sync.c.obj
+                0x0000000010000554                next_striped_spin_lock_num
  .text.irq_set_enabled
-                0x00000000100003f8       0x24 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_irq/irq.c.obj
-                0x00000000100003f8                irq_set_enabled
+                0x000000001000056c       0x24 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_irq/irq.c.obj
+                0x000000001000056c                irq_set_enabled
  .text.irq_get_vtable_handler
-                0x000000001000041c       0x10 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_irq/irq.c.obj
-                0x000000001000041c                irq_get_vtable_handler
+                0x0000000010000590       0x10 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_irq/irq.c.obj
+                0x0000000010000590                irq_get_vtable_handler
  .text.irq_set_exclusive_handler
-                0x000000001000042c       0x54 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_irq/irq.c.obj
-                0x000000001000042c                irq_set_exclusive_handler
+                0x00000000100005a0       0x54 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_irq/irq.c.obj
+                0x00000000100005a0                irq_set_exclusive_handler
  .text.irq_remove_handler
-                0x0000000010000480      0x1b4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_irq/irq.c.obj
-                0x0000000010000480                irq_remove_handler
+                0x00000000100005f4      0x1b4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_irq/irq.c.obj
+                0x00000000100005f4                irq_remove_handler
  .text.irq_add_tail_to_free_list
-                0x0000000010000634       0xb4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_irq/irq.c.obj
-                0x0000000010000634                irq_add_tail_to_free_list
+                0x00000000100007a8       0xb4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_irq/irq.c.obj
+                0x00000000100007a8                irq_add_tail_to_free_list
  .text.irq_init_priorities
-                0x00000000100006e8       0x24 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_irq/irq.c.obj
-                0x00000000100006e8                irq_init_priorities
+                0x000000001000085c       0x24 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_irq/irq.c.obj
+                0x000000001000085c                irq_init_priorities
  .text.lock_init
-                0x000000001000070c       0x10 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_sync/lock_core.c.obj
-                0x000000001000070c                lock_init
+                0x0000000010000880       0x10 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_sync/lock_core.c.obj
+                0x0000000010000880                lock_init
  .text.timer_pool_entry_comparator
-                0x000000001000071c       0x34 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_time/time.c.obj
-                0x000000001000071c                timer_pool_entry_comparator
+                0x0000000010000890       0x34 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_time/time.c.obj
+                0x0000000010000890                timer_pool_entry_comparator
  .text.sleep_until_callback
-                0x0000000010000750       0x30 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_time/time.c.obj
+                0x00000000100008c4       0x30 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_time/time.c.obj
  .text.add_alarm_under_lock.isra.0
-                0x0000000010000780      0x100 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_time/time.c.obj
+                0x00000000100008f4      0x100 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_time/time.c.obj
  .text.alarm_pool_alarm_callback
-                0x0000000010000880      0x1c8 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_time/time.c.obj
+                0x00000000100009f4      0x1c8 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_time/time.c.obj
  .text.alarm_pool_add_alarm_at.constprop.0
-                0x0000000010000a48      0x11c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_time/time.c.obj
+                0x0000000010000bbc      0x11c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_time/time.c.obj
  .text.alarm_pool_init_default
-                0x0000000010000b64       0x64 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_time/time.c.obj
-                0x0000000010000b64                alarm_pool_init_default
+                0x0000000010000cd8       0x64 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_time/time.c.obj
+                0x0000000010000cd8                alarm_pool_init_default
  .text.sleep_until
-                0x0000000010000bc8       0xac CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_time/time.c.obj
-                0x0000000010000bc8                sleep_until
+                0x0000000010000d3c       0xac CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_time/time.c.obj
+                0x0000000010000d3c                sleep_until
  .text.sleep_ms
-                0x0000000010000c74       0x38 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_time/time.c.obj
-                0x0000000010000c74                sleep_ms
+                0x0000000010000de8       0x38 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_time/time.c.obj
+                0x0000000010000de8                sleep_ms
  .text.hardware_alarm_irq_handler
-                0x0000000010000cac       0xb8 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_timer/timer.c.obj
+                0x0000000010000e20       0xb8 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_timer/timer.c.obj
  .text.hardware_alarm_claim
-                0x0000000010000d64       0x18 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_timer/timer.c.obj
-                0x0000000010000d64                hardware_alarm_claim
+                0x0000000010000ed8       0x18 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_timer/timer.c.obj
+                0x0000000010000ed8                hardware_alarm_claim
  .text.time_us_64
-                0x0000000010000d7c       0x14 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_timer/timer.c.obj
-                0x0000000010000d7c                time_us_64
+                0x0000000010000ef0       0x14 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_timer/timer.c.obj
+                0x0000000010000ef0                time_us_64
  .text.busy_wait_until
-                0x0000000010000d90       0x20 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_timer/timer.c.obj
-                0x0000000010000d90                busy_wait_until
+                0x0000000010000f04       0x20 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_timer/timer.c.obj
+                0x0000000010000f04                busy_wait_until
  .text.hardware_alarm_set_callback
-                0x0000000010000db0       0x8c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_timer/timer.c.obj
-                0x0000000010000db0                hardware_alarm_set_callback
+                0x0000000010000f24       0x8c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_timer/timer.c.obj
+                0x0000000010000f24                hardware_alarm_set_callback
  .text.hardware_alarm_set_target
-                0x0000000010000e3c       0xe0 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_timer/timer.c.obj
-                0x0000000010000e3c                hardware_alarm_set_target
+                0x0000000010000fb0       0xe0 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_timer/timer.c.obj
+                0x0000000010000fb0                hardware_alarm_set_target
  .text.hardware_alarm_cancel
-                0x0000000010000f1c       0x3c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_timer/timer.c.obj
-                0x0000000010000f1c                hardware_alarm_cancel
+                0x0000000010001090       0x3c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_timer/timer.c.obj
+                0x0000000010001090                hardware_alarm_cancel
  .text.ph_merge_nodes
-                0x0000000010000f58       0x68 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_util/pheap.c.obj
+                0x00000000100010cc       0x68 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_util/pheap.c.obj
  .text.ph_post_alloc_init
-                0x0000000010000fc0       0x3c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_util/pheap.c.obj
-                0x0000000010000fc0                ph_post_alloc_init
+                0x0000000010001134       0x3c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_util/pheap.c.obj
+                0x0000000010001134                ph_post_alloc_init
  .text.ph_merge_two_pass
-                0x0000000010000ffc       0x90 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_util/pheap.c.obj
-                0x0000000010000ffc                ph_merge_two_pass
+                0x0000000010001170       0x90 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_util/pheap.c.obj
+                0x0000000010001170                ph_merge_two_pass
  .text.ph_remove_any_head
-                0x000000001000108c       0xf8 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_util/pheap.c.obj
+                0x0000000010001200       0xf8 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_util/pheap.c.obj
  .text.ph_remove_head
-                0x0000000010001184       0xfc CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_util/pheap.c.obj
-                0x0000000010001184                ph_remove_head
+                0x00000000100012f8       0xfc CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_util/pheap.c.obj
+                0x00000000100012f8                ph_remove_head
  .text.ph_remove_and_free_node
-                0x0000000010001280       0x7c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_util/pheap.c.obj
-                0x0000000010001280                ph_remove_and_free_node
+                0x00000000100013f4       0x7c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_util/pheap.c.obj
+                0x00000000100013f4                ph_remove_and_free_node
  .text.mutex_init
-                0x00000000100012fc       0x1c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_sync/mutex.c.obj
-                0x00000000100012fc                mutex_init
+                0x0000000010001470       0x1c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_sync/mutex.c.obj
+                0x0000000010001470                mutex_init
  .text.recursive_mutex_init
-                0x0000000010001318       0x1c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_sync/mutex.c.obj
-                0x0000000010001318                recursive_mutex_init
+                0x000000001000148c       0x1c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/common/pico_sync/mutex.c.obj
+                0x000000001000148c                recursive_mutex_init
  .text.runtime_init
-                0x0000000010001334       0xf0 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_runtime/runtime.c.obj
-                0x0000000010001334                runtime_init
- .text.exit     0x0000000010001424        0x4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_runtime/runtime.c.obj
-                0x0000000010001424                exit
- .text.panic    0x0000000010001428       0x30 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_runtime/runtime.c.obj
-                0x0000000010001428                panic
+                0x00000000100014a8       0xf0 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_runtime/runtime.c.obj
+                0x00000000100014a8                runtime_init
+ .text.exit     0x0000000010001598        0x4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_runtime/runtime.c.obj
+                0x0000000010001598                exit
+ .text.panic    0x000000001000159c       0x30 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_runtime/runtime.c.obj
+                0x000000001000159c                panic
  .text.hard_assertion_failure
-                0x0000000010001458        0xc CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_runtime/runtime.c.obj
-                0x0000000010001458                hard_assertion_failure
+                0x00000000100015cc        0xc CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_runtime/runtime.c.obj
+                0x00000000100015cc                hard_assertion_failure
  .text.clocks_init
-                0x0000000010001464      0x2bc CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_clocks/clocks.c.obj
-                0x0000000010001464                clocks_init
+                0x00000000100015d8      0x2bc CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_clocks/clocks.c.obj
+                0x00000000100015d8                clocks_init
  .text.pll_init
-                0x0000000010001720       0xb0 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_pll/pll.c.obj
-                0x0000000010001720                pll_init
+                0x0000000010001894       0xb0 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_pll/pll.c.obj
+                0x0000000010001894                pll_init
  .text.watchdog_start_tick
-                0x00000000100017d0       0x10 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_watchdog/watchdog.c.obj
-                0x00000000100017d0                watchdog_start_tick
+                0x0000000010001944       0x10 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_watchdog/watchdog.c.obj
+                0x0000000010001944                watchdog_start_tick
  .text.xosc_init
-                0x00000000100017e0       0x28 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_xosc/xosc.c.obj
-                0x00000000100017e0                xosc_init
+                0x0000000010001954       0x28 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_xosc/xosc.c.obj
+                0x0000000010001954                xosc_init
  .text._out_char
-                0x0000000010001808       0x10 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_printf/printf.c.obj
+                0x000000001000197c       0x10 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_printf/printf.c.obj
  .text.weak_raw_vprintf
-                0x0000000010001818       0x30 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_printf/printf.c.obj
-                0x0000000010001818                weak_raw_vprintf
- .text          0x0000000010001848       0x10 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_bit_ops/bit_ops_aeabi.S.obj
+                0x000000001000198c       0x30 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_printf/printf.c.obj
+                0x000000001000198c                weak_raw_vprintf
+ .text          0x00000000100019bc       0x10 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_bit_ops/bit_ops_aeabi.S.obj
  .text.rom_func_lookup
-                0x0000000010001858       0x10 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_bootrom/bootrom.c.obj
-                0x0000000010001858                rom_func_lookup
+                0x00000000100019cc       0x10 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_bootrom/bootrom.c.obj
+                0x00000000100019cc                rom_func_lookup
  .text.rom_data_lookup
-                0x0000000010001868       0x10 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_bootrom/bootrom.c.obj
-                0x0000000010001868                rom_data_lookup
+                0x00000000100019dc       0x10 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_bootrom/bootrom.c.obj
+                0x00000000100019dc                rom_data_lookup
  .text.rom_funcs_lookup
-                0x0000000010001878       0x44 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_bootrom/bootrom.c.obj
-                0x0000000010001878                rom_funcs_lookup
+                0x00000000100019ec       0x44 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_bootrom/bootrom.c.obj
+                0x00000000100019ec                rom_funcs_lookup
  .text.__wrap___aeabi_uidiv
-                0x00000000100018bc       0x4c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_divider/divider.S.obj
-                0x00000000100018bc                __wrap___aeabi_uidiv
-                0x00000000100018bc                __wrap___aeabi_uidivmod
-                0x00000000100018bc                div_u32u32
-                0x00000000100018bc                divmod_u32u32
-                0x00000000100018c4                divmod_u32u32_unsafe
-                0x00000000100018ec                divmod_u32u32_savestate
+                0x0000000010001a30       0x4c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_divider/divider.S.obj
+                0x0000000010001a30                __wrap___aeabi_uidiv
+                0x0000000010001a30                __wrap___aeabi_uidivmod
+                0x0000000010001a30                div_u32u32
+                0x0000000010001a30                divmod_u32u32
+                0x0000000010001a38                divmod_u32u32_unsafe
+                0x0000000010001a60                divmod_u32u32_savestate
  .text.__aeabi_double_init
-                0x0000000010001908       0x94 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_double/double_init_rom.c.obj
-                0x0000000010001908                __aeabi_double_init
+                0x0000000010001a7c       0x94 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_double/double_init_rom.c.obj
+                0x0000000010001a7c                __aeabi_double_init
  .text.double_table_shim_on_use_helper
-                0x000000001000199c       0x2c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_double/double_v1_rom_shim.S.obj
-                0x000000001000199c                double_table_shim_on_use_helper
+                0x0000000010001b10       0x2c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_double/double_v1_rom_shim.S.obj
+                0x0000000010001b10                double_table_shim_on_use_helper
  .text.__aeabi_lmul
-                0x00000000100019c8       0x32 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_int64_ops/pico_int64_ops_aeabi.S.obj
-                0x00000000100019c8                __wrap___aeabi_lmul
- *fill*         0x00000000100019fa        0x2 
+                0x0000000010001b3c       0x32 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_int64_ops/pico_int64_ops_aeabi.S.obj
+                0x0000000010001b3c                __wrap___aeabi_lmul
+ *fill*         0x0000000010001b6e        0x2 
  .text.__aeabi_float_init
-                0x00000000100019fc       0x64 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_float/float_init_rom.c.obj
-                0x00000000100019fc                __aeabi_float_init
+                0x0000000010001b70       0x64 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_float/float_init_rom.c.obj
+                0x0000000010001b70                __aeabi_float_init
  .text.float_table_shim_on_use_helper
-                0x0000000010001a60       0x2c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_float/float_v1_rom_shim.S.obj
-                0x0000000010001a60                float_table_shim_on_use_helper
- .text          0x0000000010001a8c       0x10 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_mem_ops/mem_ops_aeabi.S.obj
-                0x0000000010001a8c                __aeabi_mem_init
- .text.memcpy   0x0000000010001a9c        0xc CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_mem_ops/mem_ops_aeabi.S.obj
-                0x0000000010001a9c                __wrap___aeabi_memcpy
-                0x0000000010001a9c                __wrap_memcpy
+                0x0000000010001bd4       0x2c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_float/float_v1_rom_shim.S.obj
+                0x0000000010001bd4                float_table_shim_on_use_helper
+ .text          0x0000000010001c00       0x10 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_mem_ops/mem_ops_aeabi.S.obj
+                0x0000000010001c00                __aeabi_mem_init
+ .text.memcpy   0x0000000010001c10        0xc CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_mem_ops/mem_ops_aeabi.S.obj
+                0x0000000010001c10                __wrap___aeabi_memcpy
+                0x0000000010001c10                __wrap_memcpy
  .text.stdio_out_chars_no_crlf
-                0x0000000010001aa8       0x10 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_stdio/stdio.c.obj
+                0x0000000010001c1c       0x10 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_stdio/stdio.c.obj
  .text.stdio_out_chars_crlf
-                0x0000000010001ab8       0xb4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_stdio/stdio.c.obj
+                0x0000000010001c2c       0xb4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_stdio/stdio.c.obj
  .text.stdio_put_string.isra.0
-                0x0000000010001b6c       0xfc CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_stdio/stdio.c.obj
+                0x0000000010001ce0       0xfc CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_stdio/stdio.c.obj
  .text.__wrap_putchar
-                0x0000000010001c68       0xa0 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_stdio/stdio.c.obj
-                0x0000000010001c68                __wrap_putchar
+                0x0000000010001ddc       0xa0 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_stdio/stdio.c.obj
+                0x0000000010001ddc                __wrap_putchar
  .text.__wrap_puts
-                0x0000000010001d08       0x3c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_stdio/stdio.c.obj
-                0x0000000010001d08                __wrap_puts
- .text.strlen   0x0000000010001d44       0x5c /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v6-m/nofp/libc.a(lib_a-strlen-stub.o)
-                0x0000000010001d44                strlen
+                0x0000000010001e7c       0x3c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_stdio/stdio.c.obj
+                0x0000000010001e7c                __wrap_puts
+ .text.strlen   0x0000000010001eb8       0x5c /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v6-m/nofp/libc.a(lib_a-strlen-stub.o)
+                0x0000000010001eb8                strlen
  *(.fini)
- .fini          0x0000000010001da0        0x4 /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v6-m/nofp/crti.o
-                0x0000000010001da0                _fini
- *fill*         0x0000000010001da4        0x4 
- .fini.__stub   0x0000000010001da8       0x40 linker stubs
+ .fini          0x0000000010001f14        0x4 /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v6-m/nofp/crti.o
+                0x0000000010001f14                _fini
+ .fini.__stub   0x0000000010001f18       0x40 linker stubs
  *crtbegin.o(.ctors)
  *crtbegin?.o(.ctors)
  *(EXCLUDE_FILE(*crtend.o *crtend?.o) .ctors)
@@ -1516,82 +1521,82 @@ LOAD /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/..
  *(SORT_BY_NAME(.dtors.*))
  *(.dtors)
  *(.eh_frame*)
- .eh_frame      0x0000000010001de8        0x0 /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v6-m/nofp/crtbegin.o
-                0x0000000010001de8                . = ALIGN (0x4)
+ .eh_frame      0x0000000010001f58        0x0 /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v6-m/nofp/crtbegin.o
+                0x0000000010001f58                . = ALIGN (0x4)
 
-.glue_7         0x0000000010001de8        0x0
- .glue_7        0x0000000010001de8        0x0 linker stubs
+.glue_7         0x0000000010001f58        0x0
+ .glue_7        0x0000000010001f58        0x0 linker stubs
 
-.glue_7t        0x0000000010001de8        0x0
- .glue_7t       0x0000000010001de8        0x0 linker stubs
+.glue_7t        0x0000000010001f58        0x0
+ .glue_7t       0x0000000010001f58        0x0 linker stubs
 
-.vfp11_veneer   0x0000000010001de8        0x0
- .vfp11_veneer  0x0000000010001de8        0x0 linker stubs
+.vfp11_veneer   0x0000000010001f58        0x0
+ .vfp11_veneer  0x0000000010001f58        0x0 linker stubs
 
-.v4_bx          0x0000000010001de8        0x0
- .v4_bx         0x0000000010001de8        0x0 linker stubs
+.v4_bx          0x0000000010001f58        0x0
+ .v4_bx         0x0000000010001f58        0x0 linker stubs
 
-.iplt           0x0000000010001de8        0x0
- .iplt          0x0000000010001de8        0x0 /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v6-m/nofp/crtbegin.o
+.iplt           0x0000000010001f58        0x0
+ .iplt          0x0000000010001f58        0x0 /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v6-m/nofp/crtbegin.o
 
-.rodata         0x0000000010001de8       0xa8
+.rodata         0x0000000010001f58       0xa8
  *(EXCLUDE_FILE(*libm.a: *libc.a:*lib_a-mem*.o *libgcc.a:) .rodata*)
  .rodata.hardware_alarm_claim.str1.4
-                0x0000000010001de8       0x22 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_timer/timer.c.obj
- *fill*         0x0000000010001e0a        0x2 
+                0x0000000010001f58       0x22 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/hardware_timer/timer.c.obj
+ *fill*         0x0000000010001f7a        0x2 
  .rodata.panic.str1.4
-                0x0000000010001e0c       0x12 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_runtime/runtime.c.obj
- *fill*         0x0000000010001e1e        0x2 
+                0x0000000010001f7c       0x12 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_runtime/runtime.c.obj
+ *fill*         0x0000000010001f8e        0x2 
  .rodata.hard_assertion_failure.str1.4
-                0x0000000010001e20        0xc CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_runtime/runtime.c.obj
+                0x0000000010001f90        0xc CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_runtime/runtime.c.obj
  .rodata.str1.4
-                0x0000000010001e2c       0x3c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
+                0x0000000010001f9c       0x3c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
  .rodata.__bi_44
-                0x0000000010001e68        0xc CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
+                0x0000000010001fd8        0xc CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
  .rodata.__bi_75
-                0x0000000010001e74        0xc CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
+                0x0000000010001fe4        0xc CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
  .rodata.__bi_81
-                0x0000000010001e80        0xc CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
+                0x0000000010001ff0        0xc CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
  .rodata.crlf_str.0
-                0x0000000010001e8c        0x2 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_stdio/stdio.c.obj
-                0x0000000010001e90                . = ALIGN (0x4)
- *fill*         0x0000000010001e8e        0x2 
+                0x0000000010001ffc        0x2 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_stdio/stdio.c.obj
+                0x0000000010002000                . = ALIGN (0x4)
+ *fill*         0x0000000010001ffe        0x2 
  *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.flashdata*)))
-                0x0000000010001e90                . = ALIGN (0x4)
+                0x0000000010002000                . = ALIGN (0x4)
 
-.rel.dyn        0x0000000010001e90        0x0
- .rel.iplt      0x0000000010001e90        0x0 /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v6-m/nofp/crtbegin.o
+.rel.dyn        0x0000000010002000        0x0
+ .rel.iplt      0x0000000010002000        0x0 /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v6-m/nofp/crtbegin.o
 
 .ARM.extab
  *(.ARM.extab* .gnu.linkonce.armextab.*)
-                0x0000000010001e90                __exidx_start = .
+                0x0000000010002000                __exidx_start = .
 
 .ARM.exidx
  *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-                0x0000000010001e90                __exidx_end = .
-                0x0000000010001e90                . = ALIGN (0x4)
-                0x0000000010001e90                __binary_info_start = .
+                0x0000000010002000                __exidx_end = .
+                0x0000000010002000                . = ALIGN (0x4)
+                0x0000000010002000                __binary_info_start = .
 
-.binary_info    0x0000000010001e90       0x1c
+.binary_info    0x0000000010002000       0x1c
  *(.binary_info.keep.*)
  .binary_info.keep.__bi_ptr22
-                0x0000000010001e90        0x4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
+                0x0000000010002000        0x4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
  .binary_info.keep.__bi_ptr30
-                0x0000000010001e94        0x4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
+                0x0000000010002004        0x4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
  .binary_info.keep.__bi_ptr38
-                0x0000000010001e98        0x4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
+                0x0000000010002008        0x4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
  .binary_info.keep.__bi_ptr44
-                0x0000000010001e9c        0x4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
+                0x000000001000200c        0x4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
  .binary_info.keep.__bi_ptr50
-                0x0000000010001ea0        0x4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
+                0x0000000010002010        0x4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
  .binary_info.keep.__bi_ptr75
-                0x0000000010001ea4        0x4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
+                0x0000000010002014        0x4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
  .binary_info.keep.__bi_ptr81
-                0x0000000010001ea8        0x4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
+                0x0000000010002018        0x4 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
  *(.binary_info.*)
-                0x0000000010001eac                __binary_info_end = .
-                0x0000000010001eac                . = ALIGN (0x4)
-                0x0000000010001eac                __etext = .
+                0x000000001000201c                __binary_info_end = .
+                0x000000001000201c                . = ALIGN (0x4)
+                0x000000001000201c                __etext = .
 
 .ram_vector_table
                 0x0000000020000000       0xc0
@@ -1600,7 +1605,7 @@ LOAD /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/..
                 0x0000000020000000       0xc0 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_runtime/runtime.c.obj
                 0x0000000020000000                ram_vector_table
 
-.data           0x00000000200000c0      0x16c load address 0x0000000010001eac
+.data           0x00000000200000c0      0x16c load address 0x000000001000201c
                 0x00000000200000c0                __data_start__ = .
  *(vtable)
  *(.time_critical*)
@@ -1677,27 +1682,27 @@ LOAD /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/..
                 0x000000002000022c                . = ALIGN (0x4)
                 0x000000002000022c                __data_end__ = .
 
-.igot.plt       0x000000002000022c        0x0 load address 0x0000000010002018
+.igot.plt       0x000000002000022c        0x0 load address 0x0000000010002188
  .igot.plt      0x000000002000022c        0x0 /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v6-m/nofp/crtbegin.o
 
 .uninitialized_data
-                0x000000002000022c        0x0 load address 0x0000000010002018
+                0x000000002000022c        0x0 load address 0x0000000010002188
                 0x000000002000022c                . = ALIGN (0x4)
  *(.uninitialized_data*)
 
-.scratch_x      0x0000000020040000        0x0 load address 0x0000000010002018
+.scratch_x      0x0000000020040000        0x0 load address 0x0000000010002188
                 0x0000000020040000                __scratch_x_start__ = .
  *(.scratch_x.*)
                 0x0000000020040000                . = ALIGN (0x4)
                 0x0000000020040000                __scratch_x_end__ = .
-                0x0000000010002018                __scratch_x_source__ = LOADADDR (.scratch_x)
+                0x0000000010002188                __scratch_x_source__ = LOADADDR (.scratch_x)
 
-.scratch_y      0x0000000020041000        0x0 load address 0x0000000010002018
+.scratch_y      0x0000000020041000        0x0 load address 0x0000000010002188
                 0x0000000020041000                __scratch_y_start__ = .
  *(.scratch_y.*)
                 0x0000000020041000                . = ALIGN (0x4)
                 0x0000000020041000                __scratch_y_end__ = .
-                0x0000000010002018                __scratch_y_source__ = LOADADDR (.scratch_y)
+                0x0000000010002188                __scratch_y_source__ = LOADADDR (.scratch_y)
 
 .bss            0x0000000020000230      0x3cc
                 0x0000000020000230                . = ALIGN (0x4)
@@ -1754,8 +1759,8 @@ LOAD /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/..
  *(.stack*)
  .stack         0x0000000020041000      0x800 CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/crt0.S.obj
 
-.flash_end      0x0000000010002018        0x0
-                0x0000000010002018                __flash_binary_end = .
+.flash_end      0x0000000010002188        0x0
+                0x0000000010002188                __flash_binary_end = .
                 0x0000000020040000                __StackLimit = (ORIGIN (RAM) + LENGTH (RAM))
                 0x0000000020041000                __StackOneTop = (ORIGIN (SCRATCH_X) + LENGTH (SCRATCH_X))
                 0x0000000020042000                __StackTop = (ORIGIN (SCRATCH_Y) + LENGTH (SCRATCH_Y))
@@ -1810,7 +1815,7 @@ LOAD CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_commo
 LOAD CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_standard_link/binary_info.c.obj
 LOAD CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_stdio/stdio.c.obj
 LOAD CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.c.obj
-LOAD /tmp/cccIPaMy.o
+LOAD /tmp/ccm8JkWa.o
 LOAD /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v6-m/nofp/libstdc++.a
 LOAD /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/lib/thumb/v6-m/nofp/libm.a
 START GROUP
@@ -1898,7 +1903,7 @@ LOAD linker stubs
  .ARM.attributes
                 0x000000000000053a       0x2c CMakeFiles/lab1.dir/home/garett/Repos/WSU/CS466/pico/pico-sdk/src/rp2_common/pico_stdio/stdio.c.obj
  .ARM.attributes
-                0x0000000000000566       0x22 /tmp/cccIPaMy.o
+                0x0000000000000566       0x22 /tmp/ccm8JkWa.o
  .ARM.attributes
                 0x0000000000000588       0x1e /home/garett/Repos/WSU/CS466/pico/bin/gcc-arm-none-eabi-10.3-2021.10/bin/../lib/gcc/arm-none-eabi/10.3.1/thumb/v6-m/nofp/libgcc.a(_dvmd_tls.o)
  .ARM.attributes
