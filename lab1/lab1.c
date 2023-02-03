@@ -131,5 +131,14 @@ int main() {
             sleep_ms(995);
         }
 #endif
+
+#if 0   /* working alternate of problem 12 */
+        bool trigger1 = isPressed(SW1);
+        bool trigger2 = isPressed(SW2);
+        if (trigger1 
+        } else {
+            sleep_ms(1);
+        }
+#endif
     }
 }
