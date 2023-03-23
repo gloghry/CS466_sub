@@ -74,6 +74,8 @@ void heartbeat(void * notUsed)
         vTaskDelay(heartbeatDelay);
         gpio_put(LED_PIN, 0);
         vTaskDelay(heartbeatDelay);
+
+        printf("lab2 Tick\n");
     }
 }
 

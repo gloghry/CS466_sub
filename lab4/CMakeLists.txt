@@ -5,6 +5,7 @@ include(../../pico/pico-sdk/external/pico_sdk_import.cmake)
 #include(external/pico_sdk_import.cmake)
 
 set(PICO_SDK_FREERTOS_SOURCE ../../FreeRTOSv202112.00/FreeRTOS/Source)
+set(CMAKE_BUILD_TYPE Debug)
 
 project(lab4 C CXX ASM)
 set(CMAKE_C_STANDARD 11)
