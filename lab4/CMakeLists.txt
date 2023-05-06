@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.13)
 include(../../pico/pico-sdk/external/pico_sdk_import.cmake)
 #include(external/pico_sdk_import.cmake)
 
-set(PICO_SDK_FREERTOS_SOURCE ../../FreeRTOSv202112.00/FreeRTOS/Source)
+set(PICO_SDK_FREERTOS_SOURCE ../../FreeRTOSv202212.00/FreeRTOS/Source)
 set(CMAKE_BUILD_TYPE Debug)
 
 project(lab4 C CXX ASM)
@@ -45,8 +45,9 @@ target_include_directories(freertos PUBLIC
 
 add_executable(lab4
         lab4.c
-        mGpio.c
-        mSpi.c
+        myAssert.c
+        # mGpio.c
+        # mSpi.c
         )
 
 # pull in common dependencies

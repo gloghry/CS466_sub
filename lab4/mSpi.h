@@ -7,10 +7,10 @@
 #define FEATURE_BITBANG_SPI
 
 #ifdef FEATURE_BITBANG_SPI
-#define CS_PIN   17  /* GPIO17 */
-#define CLK_PIN  18  /* GPIO18 */
-#define MOSI_PIN 19  /* GPIO19 */
-#define MISO_PIN 16  /* GPIO16 */
+#define CS_PIN   16  /* GPIO17 */
+#define CLK_PIN  17  /* GPIO18 */
+#define MOSI_PIN 18  /* GPIO19 */
+#define MISO_PIN 19  /* GPIO16 */
 #endif
 
 
