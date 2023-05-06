@@ -147,12 +147,13 @@ void both_handler(void *notUsed) {
     while(true) {
         xSemaphoreTake(_semBoth, portMAX_DELAY);
         last_interrupt = get_absolute_time();
-        if (!gpio_get(SW1_PIN) && !gpio_get(SW2_PIN)) {
-            vTaskSuspend(hb_task);
-            vTaskSuspend(sw1_task);
-            vTaskSuspend(sw2_task);
-            hb_core(both_hb);
-        }
+
+        vTaskSuspend(hb_task);
+        vTaskSuspend(sw1_task);
+        vTaskSuspend(sw2_task);
+
+        while(!gpio_get(SW1_PIN) && !gpio_get(SW2_PIN)) hb_core(both_hb);
+
         vTaskResume(hb_task);
         vTaskResume(sw1_task);
         vTaskResume(sw2_task);
