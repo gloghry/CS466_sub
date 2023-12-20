@@ -8,4 +8,4 @@ CMakeFiles/
 *.map
 *.hex
 *.uf2
-
+*.copy
