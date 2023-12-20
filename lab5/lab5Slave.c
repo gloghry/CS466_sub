@@ -1,5 +1,5 @@
 /**
- * @brief CS466 Lab4 SPI Bit-Bang
+ * @brief CS466 Lab5 SLAVE VER
  * 
  * Copyright (c) 2022 Washington State University.
  */
@@ -13,31 +13,286 @@
 #include "hardware/gpio.h"
 #include "pico/stdlib.h"
 
-#include "mGpio.h"
-#include "mSpi.h"
+#include "pinout.h"
 #include "myAssert.h"
 
-const uint8_t LED_PIN = 25;
-const uint8_t SW1_PIN = 14;
-const uint8_t SW2_PIN = 15;
+#define DEBUG 1
 
-const uint8_t INT_B = 13;
+volatile uint8_t LED_REG;
+volatile uint8_t SW_REG;
+volatile uint8_t INT_REG;
+volatile bool transferState = false;
 
-#define DEBOUNCE_TIMER 1
+QueueHandle_t queue= NULL;
 
-
-static volatile uint32_t lastTime = 0;
-static volatile bool lastState = true;
-
-
-static SemaphoreHandle_t _intBtn = NULL;
+// PINS INCLUDE SO, SI, CLK, CS, SW1, SW2
+// NO XX_PIN STYLE NAMING - ONLY CORE NAME
 
 /* Core functions that put/get values to/from their respective pins */
-void setMOSI(bool val) { gpio_put(MOSI_PIN, val); }
-void setSCK(bool val) { gpio_put(CLK_PIN, val); }
-uint8_t getMISO(void) { return gpio_get(MISO_PIN); }
-void setCS(bool val) { gpio_put(CS_PIN, val); }
+/* PINS DEFINED IN "pinout.h" */
+uint8_t getMOSI(void) { return gpio_get(SI); }
+uint8_t getCLK(void) { return gpio_get(CLK); }
+void setMISO(bool val) { gpio_put(SO, val); }
+uint8_t getCS(void) { return gpio_get(CS); }
 
+void setLED_REG(uint8_t val) { LED_REG = val; }
+void setSW_REG(uint8_t val) { SW_REG = val; }
+void setINT_REG(uint8_t val) { INT_REG = val; }
+
+uint8_t getLED_REG(void) { return LED_REG; }
+uint8_t getSW_REG(void) { return SW_REG; }
+uint8_t getINT_REG(void) { return INT_REG; }
+
+
+/* I don't have a single RGB, so we use 3 pico pins for R, G, B */
+void setRED(bool val) { gpio_put(LEDR_PIN, val); }
+void setGREEN(bool val) { gpio_put(LEDG_PIN, val); }
+void setBLUE(bool val) { gpio_put(LEDB_PIN, val); }
+
+
+void externRGB(uint8_t slct) {
+    if (slct & LED_RED) setRED(HIGH);
+    else setRED(LOW);
+
+    if (slct & LED_GREEN) setGREEN(HIGH);
+    else setGREEN(LOW);
+
+    if (slct & LED_BLUE) setBLUE(HIGH);
+    else setBLUE(LOW);
+}
+
+void writeREG(uint8_t REG, uint8_t slct) {
+    REG &= 0x0F;                    // Mask upper 4 bits, lower 4 bits is addr
+                                    // Upper 4 bits indicate read/write
+    slct &= 0x0F;                   // whole byte could be used
+                                    // But all that's ever used is a nibble
+    if (REG & LED_REG_ADDR) {
+        setLED_REG(slct);
+        externRGB(slct);
+    } else if (REG & SW_REG_ADDR) setSW_REG(slct); 
+    else if (REG & INT_REG_ADDR) setINT_REG(slct);
+    else printf("Not a valid register from master\n");
+}
+
+uint8_t readREG(uint8_t REG) {
+    REG &= 0x0F;
+    if (REG & LED_REG_ADDR) return (getLED_REG()) ;
+    else if (REG & SW_REG_ADDR) return (getSW_REG());
+    else if (REG & INT_REG_ADDR) return (getINT_REG());
+    else {
+        printf("Not a valid register from master\n");
+        return 0;
+    }
+}
+ 
+
+/* DESIGNED TO BE AN INTERNAL DEBUGGING FOR RGB
+   PIN WRITES, AS WELL AS SETTING THE REGISTER.
+   THIS PROGRAM IS *VERY* SLOW, AND SHOULD NOT NORMALLY
+   BE CALLED, UNLESS IN A DEBUGGING STATE. */
+static void REGWriteFlashTest(void) {
+    sleep_ms(1000);
+    writeREG(LED_REG_ADDR, LED_RED);
+    sleep_ms(100);
+    myAssert(LED_RED == readREG(LED_REG_ADDR));
+    printf("LED REG shows 0x%02x\n", readREG(LED_REG_ADDR));
+
+    writeREG(LED_REG_ADDR, LED_GREEN);
+    sleep_ms(100);
+    myAssert(LED_GREEN == readREG(LED_REG_ADDR));
+    printf("LED REG shows 0x%02x\n", readREG(LED_REG_ADDR));
+
+    writeREG(LED_REG_ADDR, LED_BLUE);
+    sleep_ms(100);
+    myAssert(LED_BLUE == readREG(LED_REG_ADDR));
+    printf("LED REG shows 0x%02x\n", readREG(LED_REG_ADDR));
+
+    writeREG(LED_REG_ADDR, 0);
+    sleep_ms(100);
+    myAssert(0x00 == readREG(LED_REG_ADDR));
+    printf("LED REG shows 0x%02x\n", readREG(LED_REG_ADDR));
+
+    for (int i = 0; i < 3; i++) {
+        writeREG(LED_REG_ADDR, (LED_RED | LED_GREEN | LED_BLUE));
+        sleep_ms(100);
+        writeREG(LED_REG_ADDR, 0);
+        sleep_ms(100);
+    }
+}
+
+void int_handler(uint gpio, uint32_t event) {
+    uint8_t inter;
+    if (gpio == CS) {
+        if (event == GPIO_IRQ_EDGE_RISE) {
+            inter = CS_HIGH;
+            xQueueSendFromISR(queue, (void *) &inter, 0);
+        }
+        if (event == GPIO_IRQ_EDGE_FALL) {
+            inter = CS_LOW;
+            xQueueSendFromISR(queue, (void *) &inter, 0);
+        }
+    }
+    if (gpio == CLK) {
+        if (event == GPIO_IRQ_EDGE_RISE) {
+            inter = CLK_HIGH;
+            xQueueSendFromISR(queue, (void *) &inter, 0);
+        }
+        if (event == GPIO_IRQ_EDGE_FALL) {
+            inter = CLK_LOW;
+            xQueueSendFromISR(queue, (void *) &inter, 0);
+        }
+    }
+}
+
+volatile uint8_t count, bitBuff, addrBuff, dataBuff, readWriteBuff;
+volatile bool firstByte = true;
+void queue_handler(void *empty) {
+    uint8_t buff;
+    while(1) {
+        xQueueReceive(queue, &buff, portMAX_DELAY);
+        
+        switch(buff) {
+            case CS_HIGH:
+                if (DEBUG) printf("Chip select high incoming\n");
+                /* INDICATE END OF TRANSFER OF BITS */
+                transferState = false;
+                count = bitBuff = addrBuff = dataBuff = readWriteBuff= 0;
+                break;
+
+            case CS_LOW:
+                if (DEBUG) printf("Chip select low incoming\n");
+                /* INDICATE START OF TRANSFER OF BITS */
+                transferState = true;
+                count = bitBuff = addrBuff = dataBuff = 0;
+                break;
+
+            case CLK_HIGH:
+                if (DEBUG) printf("High clock tick\n");
+                /* CHECK TO SEE IF IN A TRANSFER STATE OR NOT
+                   WE MAY BE WRITTEN TO INCORRECTLY
+                   HIGH CLOCK TICK WE WRITE A BIT */
+                if (!transferState) printf("Err\n");
+                break;
+
+            case CLK_LOW:
+                if (DEBUG) printf("Low clock tick\n");
+                /* CHECK TO SEE IF IN A TRANSFER STATE OR NOT
+                   WE MAY BE WRITTEN TO INCORRECTLY
+                   LOW CLOCK TICK WE READ A BIT */
+                count++;
+                if (firstByte) {
+                    if (count == 7) {
+                        readWriteBuff = (0xF0 & bitBuff);
+                        addrBuff = (0x0F & bitBuff);
+                        count = 0;
+                        firstByte = false;
+                    }
+                 } else {
+                    if (count == 7) {
+                        dataBuff = (0x0F & bitBuff);
+                        if (readWriteBuff & WRITE_NIB) writeREG(addrBuff, dataBuff);
+                    }
+                }
+                break;
+
+            default:
+                printf("Err\n");
+                break;
+        }
+    }
+}
+
+/* init is opposite to master
+   IN   CS, CLK, SI
+   OUT  SO, WATCHDOG, INTR
+*/ 
+void gpioInit(void) {
+    gpio_init(CS);
+    gpio_init(CLK);
+    gpio_init(SI);
+    gpio_init(SO);
+    gpio_init(WATCHDOG);
+    gpio_init(INTR);
+    gpio_init(LEDR_PIN);
+    gpio_init(LEDG_PIN);
+    gpio_init(LEDB_PIN);
+
+    /* OUTPUT PINS */
+    gpio_set_dir(SO, GPIO_OUT);         // MASTER IN, SLAVE OUT
+    gpio_set_dir(WATCHDOG, GPIO_OUT);   // WATCHDOG TRIGGERED BY SLAVE
+    gpio_set_dir(INTR, GPIO_OUT);       // INTERRUPT TRIGGERED BY SLAVE
+
+    gpio_set_dir(LEDR_PIN, GPIO_OUT);
+    gpio_set_dir(LEDG_PIN, GPIO_OUT);
+    gpio_set_dir(LEDB_PIN, GPIO_OUT);
+
+    /* INPUT PINS */
+    gpio_set_dir(SI, GPIO_IN);          // MASTER OUT, SLAVE IN
+    gpio_set_dir(CS, GPIO_IN);          // CHIP SELECT CNTRLD BY MASTER
+    gpio_set_dir(CLK, GPIO_IN);         // CLK CNTRLED BY MASTER
+
+    gpio_pull_down(CS);
+    gpio_pull_down(CLK);
+}
+
+
+void hardware_init(void) {
+    gpio_init(LED);
+    gpio_set_dir(LED, GPIO_OUT);
+
+    gpioInit();
+
+    if (DEBUG) REGWriteFlashTest();
+}
+
+
+void heartbeat(void * notUsed) {   
+    const uint32_t heartbeatDelay = 1000;  // ms
+
+    while (true) 
+    {
+        gpio_put(LED, 1);
+        pinTest();
+        vTaskDelay(heartbeatDelay);
+
+        gpio_put(LED, 0);
+        pinTest();
+        vTaskDelay(heartbeatDelay);
+
+        printf("lab5 Slave Tick\n");
+    }
+}
+
+
+int main() {
+    stdio_init_all();
+    printf("lab5 Hello!\n");
+
+    hardware_init();
+
+    queue = xQueueCreate(100, sizeof( uint8_t ));
+    if (DEBUG) printf("Queue pointer: %p\n", queue);
+
+
+    xTaskCreate(heartbeat, "LED_Task", 256, NULL, 1, NULL);
+    // xTaskCreate(int_handler, "Interrupt Handler", 256, NULL, 2, NULL);
+
+    xTaskCreate(queue_handler, "QUEUE_HANDLER", 256, NULL, 2, NULL);
+
+    /* IMPORTANT TO MOVE THIS FROM GPIOINIT FUNC
+       THESE WERE FIRING BEFORE THE QUEUE WAS PROPERLY MADE
+       CAUSING WEIRD BEHAVIOR. MOVED HERE AFTER QUEUE CREATION,
+       BEFORE STARTSCHEDULER(); */
+    gpio_set_irq_enabled_with_callback(CS, (GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE), true, &int_handler);
+    gpio_set_irq_enabled_with_callback(CLK, (GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE), true, &int_handler);
+
+    vTaskStartScheduler();
+
+    while(1){};
+}
+
+
+/*
 static bool debounce(uint gpio) {
     uint32_t time = to_ms_since_boot(get_absolute_time());
     bool state = gpio_get(gpio);
@@ -63,135 +318,9 @@ void int_handler(void *notUsed) {
         mGpioWriteByte(INTFB, 0x01);
     }
 }
-
-
-/* INIT THE **PICO** GPIO PINS AND SET THEIR CORRECT DIR
-   I KEPT GETTING THIS MIXED UP WITH EXPANDER GPIO */
-void mSpiInit(void) {
-    gpio_init(CS_PIN);
-    gpio_set_dir(CS_PIN, GPIO_OUT);
-
-    gpio_init(CLK_PIN);
-    gpio_set_dir(CLK_PIN, GPIO_OUT);
-
-    gpio_init(MOSI_PIN);
-    gpio_set_dir(MOSI_PIN, GPIO_OUT);
-
-    gpio_init(MISO_PIN);
-    gpio_set_dir(MISO_PIN, GPIO_IN);
-
-    gpio_init(INT_B);
-    gpio_pull_up(INT_B);
-    gpio_set_dir(INT_B, GPIO_IN);
-    gpio_set_irq_enabled_with_callback(INT_B, GPIO_IRQ_EDGE_FALL, true, &interrupt_from_b);
-
-    setCS(HIGH);
-
-}
-
-/* INIT THE DIR OF GPIO A AND B FOR THE EXPANDER
-   AND CHECK VALUE SET */
-void mGpioInit(void) {
-    uint8_t defvalA = mGpioReadByte(IODIRA); 
-    uint8_t defvalB = mGpioReadByte(IODIRB);
-
-    uint8_t setvalA = 0x55, setvalB = 0x56;
-
-    mGpioWriteByte(IODIRA, setvalA);
-    mGpioWriteByte(IODIRB, setvalB);
-    uint8_t retvalA = mGpioReadByte(IODIRA);
-    uint8_t retvalB = mGpioReadByte(IODIRB);
-
-    myAssert(defvalA == 0xff);
-    myAssert(defvalB == 0xff);
-    myAssert(setvalA == retvalA);
-    myAssert(setvalB == retvalB);
-
-    mGpioWriteByte(IODIRA, 0x00);
-    mGpioWriteByte(IODIRB, 0x08);
-
-    mGpioWriteByte(GPINTENB, 0x08);
-    mGpioWriteByte(IOCONB, 0x02);
-
-
-    mGpioWriteByte(GPPUB, 0x08);
-    mGpioWriteByte(DEFVALB, 0x08);
-    mGpioWriteByte(INTCONB, 0x08);
-    
-
-    sleep_ms(1);
-
-//    printf("val0: 0x%02x\nval1: 0x%02x\n", val0, val1);
-}
-
-/* CODE PROVIDED BY MILLER AS PART OF
-   SPI Interfacing document. Copied from there,
-   small change from 'out' to outData' to match prototype */
-uint8_t mSpiTransfer(uint8_t outData) {
-    uint8_t count, in = 0;
-/*    
-    gpio_put(CS_PIN, 1);
-    gpio_put(CLK_PIN, 1);
-    gpio_put(MOSI_PIN, 1);
-    printf("%d\t%d\t%d\t%d\n", gpio_get(CS_PIN), gpio_get(CLK_PIN), gpio_get(MOSI_PIN), gpio_get(MISO_PIN));
 */
 
-    setSCK(LOW);
-    for (count = 0; count < 8; count++) {
-        in <<= 1;
-        setMOSI(outData & 0x80);
-        sleep_us(1);
-        //printf("%d\t%d\t%d\t%d\n", gpio_get(CS_PIN), gpio_get(CLK_PIN), gpio_get(MOSI_PIN), gpio_get(MISO_PIN));
-        setSCK(HIGH);
-        sleep_us(1);
-        in += getMISO();
-        sleep_us(1);
-        setSCK(LOW);
-        outData <<= 1;
-    }
-    setMOSI(0);
-    sleep_us(1);
 
-    return (in);
-}
-
-void mGpioWriteByte(uint8_t addr, uint8_t byte) {
-    uint8_t preWrite = 0x40;        // OK THE READ/WRITE VAL
-                                    // TOOK ME FOREVER TO FIND.
-                                    // 010000 {0:1} 0 - write
-                                    //              1 - read
-    setCS(LOW);                     // indicate transfer
-    mSpiTransfer(preWrite);         // indicate write - see above
-    mSpiTransfer(addr);             // indicate address
-    mSpiTransfer(byte);             // transfer byte
-    setCS(HIGH);                    // indicate transfer complete
-    sleep_ms(5);
-
-    return;
-}
-
-uint8_t mGpioReadByte(uint8_t addr) {
-    uint8_t val, preRead = 0x41;
-    
-    setCS(LOW);
-    mSpiTransfer(preRead);
-    mSpiTransfer(addr);
-    val = mSpiTransfer(0);
-    setCS(HIGH);
-
-    return (val);
-}
-
-
-void hardware_init(void)
-{
-    const uint LED_PIN = PICO_DEFAULT_LED_PIN;
-    gpio_init(LED_PIN);
-    gpio_set_dir(LED_PIN, GPIO_OUT);
-
-    mSpiInit();
-    mGpioInit();
-}
 //
 // gpioVerifyReadWrite()
 //
@@ -199,8 +328,8 @@ void hardware_init(void)
 // my GPIO and SPI functionality is working correctly.  It will be retired 
 // as I move on to actual GPIO-Expander Functionality.
 //
-void gpioVerifyReadWrite(void * notUsed)
-{   
+/*
+void gpioVerifyReadWrite(void * notUsed) {   
     const uint32_t queryDelayMs = 500;  // ms
     uint8_t regValue;
     uint8_t count=0;
@@ -222,7 +351,7 @@ void gpioVerifyReadWrite(void * notUsed)
         vTaskDelay(queryDelayMs);
     }
 }
-
+*/
 // IODIRB: 0x00,  IODIRA: 0xff,  IPOLA: 0x00
 // IODIRB: 0x01,  IODIRA: 0xff,  IPOLA: 0x00
 // IODIRB: 0x02,  IODIRA: 0xff,  IPOLA: 0x00
@@ -231,7 +360,7 @@ void gpioVerifyReadWrite(void * notUsed)
 // IODIRB: 0x05,  IODIRA: 0xff,  IPOLA: 0x00
 // IODIRB: 0x06,  IODIRA: 0xff,  IPOLA: 0x00
 // etc....
-
+/*
 void ledCtrl(uint8_t val) {
     if((mGpioReadByte(GPIOB) & 0x08) == LOW) {    
         mGpioWriteByte(GPIOA, HIGH);
@@ -239,50 +368,4 @@ void ledCtrl(uint8_t val) {
         mGpioWriteByte(GPIOA, val);
     }
 }
-    
-
-void heartbeat(void * notUsed)
-{   
-    const uint32_t heartbeatDelay = 200;  // ms
-
-    while (true) 
-    {
-        
-        gpio_put(LED_PIN, 1);
-        /*
-        gpio_put(CS_PIN, 1);
-        gpio_put(CLK_PIN, 1);
-        gpio_put(MOSI_PIN, 1);
-        */
-        ledCtrl(0xFF); 
-        vTaskDelay(heartbeatDelay);
-        gpio_put(LED_PIN, 0);
-        ledCtrl(0x00);
-        /*
-        gpio_put(CS_PIN, 0);
-        gpio_put(CLK_PIN, 0);
-        gpio_put(MOSI_PIN, 0);
-        */
-        vTaskDelay(heartbeatDelay);
-
-        printf("lab4 Tick\n");
-    }
-}
-
-int main()
-{
-    stdio_init_all();
-    printf("lab4 Hello!\n");
-
-    hardware_init();
-
-    _intBtn = xSemaphoreCreateBinary();
-
-    xTaskCreate(heartbeat, "LED_Task", 256, NULL, 1, NULL);
-    //xTaskCreate(gpioVerifyReadWrite, "GPIO_Task", 256, NULL, 2, NULL); 
-    xTaskCreate(int_handler, "Interrupt Handler", 256, NULL, 2, NULL);
-
-    vTaskStartScheduler();
-
-    while(1){};
-}
+*/

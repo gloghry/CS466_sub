@@ -7,7 +7,8 @@ include(../../pico/pico-sdk/external/pico_sdk_import.cmake)
 set(PICO_SDK_FREERTOS_SOURCE ../../FreeRTOSv202212.00/FreeRTOS/Source)
 set(CMAKE_BUILD_TYPE Debug)
 
-project(lab4 C CXX ASM)
+project(lab5Master C CXX ASM)
+project(lab5Slave C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
@@ -43,26 +44,34 @@ target_include_directories(freertos PUBLIC
 )        
 
 
-add_executable(lab4
-        lab5.c
+add_executable(lab5Master
+        lab5Master.c
         myAssert.c
-        # mGpio.c
-        # mSpi.c
+        )
+
+add_executable(lab5Slave
+        lab5Slave.c
+        myAssert.c
         )
 
 # pull in common dependencies
-target_link_libraries(lab4 pico_stdlib freertos)
+target_link_libraries(lab5Master pico_stdlib freertos)
+target_link_libraries(lab5Slave pico_stdlib freertos)
 
 # tell the pico library that you will be using usb serial and not an actual uart on the 
 # processor
-pico_enable_stdio_usb(lab4 1)
-pico_enable_stdio_uart(lab4 0)
+pico_enable_stdio_usb(lab5Master 1)
+pico_enable_stdio_uart(lab5Master 0)
 
+pico_enable_stdio_usb(lab5Slave 1)
+pico_enable_stdio_uart(lab5Slave 0)
 
 # create map/bin/hex file etc.
-pico_add_extra_outputs(lab4)
+pico_add_extra_outputs(lab5Master)
+pico_add_extra_outputs(lab5Slave)
 
-add_custom_command(TARGET lab4 POST_BUILD COMMAND arm-none-eabi-size lab4.elf)
+add_custom_command(TARGET lab5Master POST_BUILD COMMAND arm-none-eabi-size lab5Master.elf)
+add_custom_command(TARGET lab5Slave POST_BUILD COMMAND arm-none-eabi-size lab5Slave.elf)
 
 # add url via pico_set_program_url
 # example_auto_set_url(blink)
